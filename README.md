@@ -70,4 +70,4 @@ All rights reserved. This repo is the public storefront (landing page, Worker co
 
 ## Deploy
 
-See [`DEPLOYMENT.md`](DEPLOYMENT.md) — ordered checklist with the exact commands, secrets, and the live-test procedure.
+The Cloudflare Pages project `telegram-channel-prompt-pack` is connected to this repo on GitHub. Every push to `main` triggers a Cloudflare build (no build command, deploy root is the `site/` folder, preview builds off). No secret is needed on GitHub for the Pages deploy.
