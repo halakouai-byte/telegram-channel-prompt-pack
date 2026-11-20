@@ -1,0 +1,11 @@
+# Never commit the paid product file or any secret.
+channelcraft-prompt-pack.zip
+channelcraft-prompt-pack.pdf
+prompts.md
+*.zip
+*.pem
+*.key
+.env
+.dev.vars
+.wrangler/
+node_modules/
