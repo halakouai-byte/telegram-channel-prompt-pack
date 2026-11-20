@@ -1,76 +1,68 @@
-# DEPLOYMENT — live (deployed 2026-11-20, verified 2026-11-21)
+# DEPLOYMENT — ChannelCraft Prompt Pack (LIVE)
 
-Repo: `halakouai-byte/telegram-channel-prompt-pack` (public) — live on GitHub.
-Live Pages URL: `https://telegram-channel-prompt-pack.pages.dev/` (verified live 2026-11-20).
-Live Worker URL: `https://prompt-pack-bot.halakouai-byte.workers.dev` (verified live 2026-11-21, HTTP 200, price_usdt 2.00).
-workers.dev subdomain: `halakouai-byte` (created via API 2026-11-20 — the old "no subdomain" blocker is gone).
-KV namespaces: `ORDERS_KV` + preview created 2026-11-20; the ids are in `worker/wrangler.toml`.
-Cron: 2-minute sweep active (created 2026-11-20).
-Bot: `@ChannelCraftDeliveryBot` (id 9012830465). Channel: `Telegram Channel Prompts` / `@ChannelCraftDelivery` (id -1004472486910).
+Repo: `halakouai-byte/telegram-channel-prompt-pack` (public).
+Live URLs (verified 2026-11-20/21):
+- Landing page: `https://telegram-channel-prompt-pack.pages.dev/`
+- Worker: `https://prompt-pack-bot.halakouai-byte.workers.dev/` (`GET /health` returns `{"ok":true,"service":"prompt-pack-bot","price_usdt":"2.00"}`)
+- Bot: `@ChannelCraftDeliveryBot` · Channel: `@ChannelCraftDelivery`
 
-> The Cloudflare account ID is a repo secret (`CLOUDFLARE_ACCOUNT_ID`) — it is never written in a file in this repo.
+Status: **LIVE.** The store is deployed and the 2-minute payment sweep (cron) is active. What is still unproven: the live payment test with a tiny real payment from a second wallet (Step 6) — do not present the store as payment-proven until it passes.
 
-## Status
+## Open items (not blockers for content work)
 
-| Step | State |
-|---|---|
-| 1. Repo created + pushed | Done (browser creation, then push) |
-| 2. Cloudflare Pages (landing page) | Done — live |
-| 3. Worker (bot + payments) | Done — live, KV created, URL wired into `tools/build-index.py` (direct web checkout on) |
-| 4. Secrets | Mostly done — **open: `SELLER_TON_ADDRESS`** (the seller's public TON receiving address is still needed before any real payment can be verified) |
-| 5. Product file_id + webhook | **Verify before the live test** — confirm the webhook is set and `PRODUCT_FILE_ID` is stored (see below) |
-| 6. Live test (tiny real payment, second wallet) | **Not done yet** — see below |
-| 7. Announce | **Not done** — only after Step 6 passes |
+1. **Live payment test** (Step 6) still needs the seller's real public TON address (`SELLER_TON_ADDRESS`), the product `PRODUCT_FILE_ID` (send the product ZIP to the bot once), and the seller's numeric Telegram ID (`SELLER_TELEGRAM_ID`). Until those land, the Worker holds clearly-marked placeholder values (`PENDING_SET_BY_SELLER`) that cannot receive money.
+2. **Quality audit** (2026-11-21): 100% of the 120 prompts were tested and 11 rewritten (see `qa/`); the v2 content merge to `main` waits on the owner's approval of the new-product list.
 
-## Former blockers (resolved 2026-11-20/21)
+## Step 1 — Repo (DONE 2026-11-20)
 
-1. **GitHub repo creation** — was blocked (the Muse GitHub App could not create repos, 403). Resolved: the repo was created in the browser and the push landed.
-2. **No workers.dev subdomain** — resolved: the subdomain `halakouai-byte` was created via API; the Worker deploys and answers at the URL above.
-3. **Cloudflare deploy without a login in this environment** — resolved: deploys run with a Cloudflare API token (via the `wrangler` CLI / GitHub Actions secrets), not a browser login.
+Repo created (public) and pushed; `main` is the live branch. Every push to `main` auto-deploys the landing page (Step 2) — there is no separate "push then deploy" step anymore.
 
-## Step 1 — Repo (done)
+## Step 2 — Cloudflare Pages (landing page): native GitHub link
 
-The repo exists at https://github.com/halakouai-byte/telegram-channel-prompt-pack.git. Pushes to `main` trigger the two deploy workflows (`.github/workflows/deploy-pages.yml`, `deploy-worker.yml`).
+**The Pages project `telegram-channel-prompt-pack` is connected to this repo natively (Cloudflare ↔ GitHub). It deploys automatically on every push to `main`.**
 
-## Step 2 — Cloudflare Pages (done)
+- No build command, deploy root `site/`, preview builds OFF (`preview_deployment_setting: "none"`).
+- No GitHub secret is needed for Pages. Do NOT add `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets for Pages, and do NOT deploy Pages with `wrangler pages deploy` — the native link is the only deploy path.
+- The old GitHub Actions workflow `.github/workflows/deploy-pages.yml` (which deployed via `cloudflare/pages-action` with API-token secrets) is **superseded** by the native link. It still exists in the repo and must be removed so it cannot fire on `site/**` pushes and conflict with the native deploy. (Follow-up: delete that file.)
+- Confirm a deploy worked: push to `main`, then check the Pages project (or `curl -s https://telegram-channel-prompt-pack.pages.dev/` — expect HTTP 200 and the current page). The native link creates a GitHub build/check on each push; a successful build means the site is live.
+- `site/index.html` is generated from `tools/build-index.py` (which reads `~/workspace/prompt-pack/content/prompts.json`); never hand-edit it. After editing `tools/build-index.py`, rebuild (`python3 tools/build-index.py`) and push to `main` — the native link deploys the rebuild automatically.
 
-Deploys `site/` on every push to `main` (`.github/workflows/deploy-pages.yml`, needs repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`). The live URL is `https://telegram-channel-prompt-pack.pages.dev/` — it is also the canonical link in `tools/build-index.py`, `site/robots.txt`, and `site/sitemap.xml`. Never hand-edit `site/index.html`: rebuild with `python3 tools/build-index.py` (it reads `content/prompts.sample.json` in this repo, or the full private `prompts.json` on the seller's machine when present).
+## Step 3 — Worker (bot + payments) (DONE 2026-11-20)
 
-## Step 3 — Worker (done, except `SELLER_TON_ADDRESS`)
+Worker `prompt-pack-bot` is deployed with `wrangler`, KV namespace `ORDERS_KV` is created and bound, the 2-minute cron trigger (`*/2 * * * *`) is attached, and the webhook is set. To redeploy the Worker (it still deploys with `wrangler`, not via GitHub):
 
 ```bash
 cd worker
 npx wrangler deploy
-# live URL: https://prompt-pack-bot.halakouai-byte.workers.dev
+# note the URL, e.g. https://prompt-pack-bot.halakouai-byte.workers.dev
 ```
 
-KV namespaces already exist (ids in `wrangler.toml` — do not recreate them). If they ever need recreating: `npx wrangler kv namespace create ORDERS_KV` (and `--preview`), then paste the ids into `wrangler.toml`.
+`wrangler deploy` uploads the Worker AND sets the cron trigger from `wrangler.toml` `[triggers]`. Never hand-roll the script-upload API (an earlier hand-rolled upload stored manifest hashes without file contents and the Worker would not run).
 
 ## Step 4 — Secrets (each prompts for the value; never in a file or chat)
 
 ```bash
-npx wrangler secret put BOT_TOKEN            # @ChannelCraftDeliveryBot (custom.telegram-prompt)
-npx wrangler secret put SELLER_TON_ADDRESS   # seller's Keeper wallet (UQ… / EQ…) — STILL OPEN, needed before the live test
-npx wrangler secret put PRODUCT_FILE_ID      # see Step 5
-npx wrangler secret put SELLER_TELEGRAM_ID   # seller's numeric id from @userinfobot
+npx wrangler secret put BOT_TOKEN            # @ChannelCraftDeliveryBot (custom.telegram-prompt) — ALREADY SET
+npx wrangler secret put SELLER_TON_ADDRESS   # seller's Keeper wallet (UQ… / EQ…) — PENDING (placeholder in Worker)
+npx wrangler secret put PRODUCT_FILE_ID      # see Step 5 — PENDING (placeholder in Worker)
+npx wrangler secret put SELLER_TELEGRAM_ID   # seller's numeric id from @userinfobot — PENDING
 npx wrangler secret put TONAPI_KEY           # optional free key from tonconsole.com
-npx wrangler secret put WEBHOOK_SECRET       # optional, recommended
+npx wrangler secret put WEBHOOK_SECRET       # ALREADY SET (generated 2026-11-20)
 ```
 
-Also set the non-secret vars in `wrangler.toml` `[vars]`: `BOT_USERNAME="ChannelCraftDeliveryBot"`, `SUPPORT_USERNAME` (seller's public @, no @). Price stays `PRODUCT_PRICE_USDT="2.00"`.
+Also set the non-secret vars in `wrangler.toml` `[vars]`: `BOT_USERNAME="ChannelCraftDeliveryBot"`,
+`SUPPORT_USERNAME` (seller's public @, no @). Price stays `PRODUCT_PRICE_USDT="2.00"`.
 
-## Step 5 — Product file_id + webhook (verify before the live test)
+## Step 5 — Product file_id + webhook
 
-1. Set the webhook (token + Worker URL + webhook secret in your terminal only):
-   `curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" -H "Content-Type: application/json" -d '{"url":"<WORKER_URL>/webhook","secret_token":"<WEBHOOK_SECRET>","allowed_updates":["message","callback_query"]}'`
-   Verify it took: `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` — expect
-   `"url": "<WORKER_URL>/webhook"` and no `"last_error_message"`. The `secret_token` in the
+1. Webhook: **already set** (2026-11-20). Verify it took: `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` — expect
+   `"url": "https://prompt-pack-bot.halakouai-byte.workers.dev/webhook"` and no `"last_error_message"`. The `secret_token` in the
    setWebhook call must match the `WEBHOOK_SECRET` Worker secret exactly, or the Worker
-   403s every update and the bot stays silent.
+   403s every update and the bot stays silent. (The webhook was set with the secret; do not re-set it without rotating the Worker secret too.)
 2. From the seller's own Telegram account, send `channelcraft-prompt-pack.zip`
-   (at `~/workspace/prompt-pack/content/`, 168 KB, NOT in this repo) to the bot.
+   (at `~/workspace/prompt-pack/content/`, NOT in this repo) to the bot.
    The bot replies with the `file_id` → `npx wrangler secret put PRODUCT_FILE_ID`.
-3. `CONFIG.workerUrl` in `tools/build-index.py` is already the live Worker URL — the landing-page Buy button creates orders directly.
+3. `WORKER_URL` is already set in `tools/build-index.py` (`https://prompt-pack-bot.halakouai-byte.workers.dev`) and the landing-page Buy button already creates orders directly. No rebuild is needed for this step.
 
 ## Step 6 — Live test (BEFORE announcing the store)
 
@@ -87,3 +79,4 @@ on a successful transfer) are proven ONLY by this test.
 Public channel `Telegram Channel Prompts` / `@ChannelCraftDelivery` + bot
 `@ChannelCraftDeliveryBot`. Post the free sample,
 link the landing page, and start the daily-post routine (see `../growth/GROWTH.md`).
+Do not announce (and do not publish any channel post) without manager approval.
