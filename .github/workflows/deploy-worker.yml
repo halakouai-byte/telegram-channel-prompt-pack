@@ -1,4 +1,10 @@
 name: Deploy Worker to Cloudflare
+
+# Least privilege: this workflow only reads the repo; the deploy itself
+# authenticates to Cloudflare with the CLOUDFLARE_API_TOKEN secret.
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]

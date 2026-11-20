@@ -1,4 +1,12 @@
 name: Deploy landing page to Cloudflare Pages
+
+# Least privilege: this workflow only reads the repo. deployments: write is
+# needed because cloudflare/pages-action creates a GitHub deployment for
+# each Pages deploy; contents: read alone would break it (403).
+permissions:
+  contents: read
+  deployments: write
+
 on:
   push:
     branches: [main]
