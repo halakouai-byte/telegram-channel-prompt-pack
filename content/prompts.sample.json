@@ -1,0 +1,160 @@
+{
+  "_note": "REDACTED SAMPLE ONLY — contains the 10 free-sample prompts that are already public in site/sample.pdf and on the landing page. The full 120-prompt prompts.json is the paid product file and is NEVER committed. tools/build-index.py reads this file when the full file is not present, and it rebuilds the identical public landing page.",
+  "pack": {
+    "currency": "USDT on TON",
+    "date": "2026-11-20",
+    "how_placeholders_work": "Replace every [bracketed item] with your own details before pasting a prompt into your AI chatbot. Prompts marked with * are the 10 free-sample prompts, also in sample.pdf.",
+    "language": "English",
+    "license": "Personal use. Do not resell, share, or redistribute this file.",
+    "name": "ChannelCraft Prompt Pack",
+    "price_usd": 2,
+    "subtitle": "120 AI Prompts to Run a Telegram Channel",
+    "version": "1.0",
+    "works_with": [
+      "ChatGPT",
+      "Claude",
+      "Gemini",
+      "DeepSeek",
+      "any AI chatbot"
+    ]
+  },
+  "sections": [
+    {
+      "count": 12,
+      "id": 1,
+      "title": "Setup & Positioning"
+    },
+    {
+      "count": 18,
+      "id": 2,
+      "title": "Content Ideas & Planning"
+    },
+    {
+      "count": 20,
+      "id": 3,
+      "title": "Writing Channel Posts"
+    },
+    {
+      "count": 12,
+      "id": 4,
+      "title": "Hooks & First Lines"
+    },
+    {
+      "count": 14,
+      "id": 5,
+      "title": "Engagement: Polls, Quizzes & Discussion"
+    },
+    {
+      "count": 14,
+      "id": 6,
+      "title": "Growth: Subscribers & Discovery"
+    },
+    {
+      "count": 12,
+      "id": 7,
+      "title": "Selling & Monetization"
+    },
+    {
+      "count": 10,
+      "id": 8,
+      "title": "Analytics & Improvement"
+    },
+    {
+      "count": 8,
+      "id": 9,
+      "title": "Community & Moderation"
+    }
+  ],
+  "prompts": [
+    {
+      "example": "Topic: English vocabulary. Audience: adult learners. Pick: 'One word a day with a real example sentence and a 10-second quiz' — narrow, repeatable, never runs out of words.",
+      "id": 1,
+      "prompt": "Act as a Telegram channel strategist. I want to start a channel about [topic]. My audience is [audience, e.g. beginner English learners aged 18-30]. I can post [number] times a week and I know a lot about [your strengths]. Give me: (1) 3 narrower niche angles inside [topic], each with a one-line promise to subscribers; (2) for each angle, 5 example post topics I could write without research; (3) your pick for the angle most likely to still have fresh topics after 12 months, with one reason why. Format as a short table, then your pick.",
+      "purpose": "Choose a niche narrow enough to stand out but wide enough to post about for a year.",
+      "section": 1,
+      "title": "Pick a channel niche that can last a year",
+      "sample": true
+    },
+    {
+      "example": "Ideas for a vocab channel: '10 words for job interviews', 'words native speakers actually shorten', 'English for the gym'.",
+      "id": 13,
+      "prompt": "Act as a content planner for a Telegram channel about [topic] for [audience]. Give me 30 post ideas, grouped into 6 themes with 5 ideas each. Every idea must be specific enough to write in under 30 minutes — a vague idea like 'talk about grammar' is not allowed; a good one is '5 words people mix up at work, with one example each'. At least 5 of the 30 ideas must be interactive (poll, quiz, question, challenge). Number the ideas 1-30.",
+      "purpose": "A month of specific post ideas, so you never stare at a blank screen.",
+      "section": 2,
+      "title": "Generate 30 specific post ideas",
+      "sample": true
+    },
+    {
+      "example": "Post: 'The word \"although\" is easier than you think. Although it was raining, we went out. Try it: write one sentence with \"although\" below.'",
+      "id": 31,
+      "prompt": "Act as a Telegram copywriter. Write a channel post about [topic] for [audience]. The post must: (1) open with one strong line, (2) teach exactly one thing, (3) include one concrete example, (4) end with one question for the readers. Keep it under 150 words. Use short paragraphs (max 2 lines each) and bold for the key phrase only. Add at most 2 emojis. Tone: [friendly / professional / funny]. Do not use hashtags.",
+      "purpose": "The core post format: one idea, one example, one question — the structure behind most good channel posts.",
+      "section": 3,
+      "title": "Write a standard channel post",
+      "sample": true
+    },
+    {
+      "example": "Tip post: 'Tip: When you learn a new word, say it out loud 3 times. Your mouth needs the practice as much as your brain.'",
+      "id": 33,
+      "prompt": "Act as a Telegram copywriter for a channel about [topic] for [audience]. Write a quick-tip post about [specific tip]. The post must: (1) start with 'Tip:' followed by the tip in one sentence, (2) explain why it works in 2 sentences, (3) give one tiny example, (4) end with a question asking readers to share their own version. Keep it under 100 words. The tip must be something the reader can try in under 5 minutes.",
+      "purpose": "Quick tips are the easiest high-value post — short to write, easy to try.",
+      "section": 3,
+      "title": "Write a quick-tip post",
+      "sample": true
+    },
+    {
+      "example": "Hooks for a vocab post: 'Stop saying \"very good\".' / 'You have been using this word wrong.' / '3 words that make you sound fluent.'",
+      "id": 51,
+      "prompt": "Act as a Telegram copywriter for a channel about [topic] for [audience]. Here is a post I want people to read: [paste your post or its topic]. Write 10 different first lines (hooks) for it, each under 12 words. Use a mix of these types: a question, a surprising fact, a bold statement, a relatable problem, and a promise of something useful. Number them 1-10. Do not use clickbait that the post cannot deliver — every hook must be honest about what the post contains.",
+      "purpose": "The first line decides whether anyone reads the second line. Ten options beat one guess.",
+      "section": 4,
+      "title": "Write 10 hooks for one post",
+      "sample": true
+    },
+    {
+      "example": "Poll: 'How do you learn new words?' — A) Flashcards B) Reading C) Watching videos D) Talking to people.",
+      "id": 63,
+      "prompt": "Act as a Telegram content creator for a channel about [topic] for [audience]. Write a poll post about [subject]. Give me: (1) the poll question (under 20 words), (2) 4 answer options (each under 10 words, all realistic — no joke options unless the channel is funny), (3) the post text that goes above the poll (under 60 words, saying why the question matters), (4) one line telling me what I will learn from the results. Remember Telegram polls allow up to 10 options, but 4 is usually best.",
+      "purpose": "A poll is the lowest-effort engagement — one tap — so the question must be worth that tap.",
+      "section": 5,
+      "title": "Write a poll post",
+      "sample": true
+    },
+    {
+      "example": "Cross-promo message: 'Hi! I run English Word Daily (1,200 subscribers). Your channel [name] is great for my audience — would you like to swap a post this week? Here's my best post: [link].'",
+      "id": 77,
+      "prompt": "Act as a Telegram growth strategist for a channel about [topic] for [audience]. I want to do a cross-promotion with a similar-sized channel. Write: (1) a short, polite message to send to the other channel's admin (under 80 words) that says who I am, why our audiences match, and what I propose (a post swap on a specific day), (2) the exact post I would publish about their channel (under 80 words, honest — only praise what I actually like), (3) 3 rules for choosing a good partner channel. Do not write anything that sounds like spam.",
+      "purpose": "A post swap with the right channel is the cheapest honest growth there is.",
+      "section": 6,
+      "title": "Write a cross-promotion message",
+      "sample": true
+    },
+    {
+      "example": "Offer post: 'I made a pack of 120 prompts for Telegram channel owners — $2 in USDT. It includes a guide and a free 10-prompt sample. Details: [link].'",
+      "id": 91,
+      "prompt": "Act as a Telegram copywriter for a channel about [topic] for [audience]. I have a product to offer: [describe the product, what it includes, and the price]. Write a sales post under 150 words that: (1) names the problem the product solves in the first line, (2) says exactly what the buyer gets (list the contents), (3) states the price clearly, (4) says how to buy in one sentence, (5) ends with one question for readers who are not ready to buy. Do not promise income, results, or guarantees I cannot keep. Tone: honest and direct, not hyped.",
+      "purpose": "A sales post that says what the buyer gets and what it costs — no hype, no promises.",
+      "section": 7,
+      "title": "Write a sales post for your product",
+      "sample": true
+    },
+    {
+      "example": "Track: date, post type, views at 24h, reactions, comments, forwards. After 4 weeks, sort by forwards — that's your best content.",
+      "id": 103,
+      "prompt": "Act as a Telegram analyst for a channel about [topic] for [audience]. I post [number] times per week. Design a simple weekly tracking sheet I can keep in a notes app or spreadsheet, with these columns: Date, Post type, Topic, Views after 24h, Reactions, Comments, Forwards, Notes. Then tell me: (1) which 2 numbers matter most for a channel like mine and why, (2) which number is misleading on its own, (3) how many weeks of data I need before I trust a pattern. Keep the whole answer under 200 words.",
+      "purpose": "Five numbers a week, tracked simply, beats a dashboard you never open.",
+      "section": 8,
+      "title": "Set up simple weekly tracking",
+      "sample": true
+    },
+    {
+      "example": "Group welcome: 'Welcome! This is the discussion group for English Word Daily. Introduce yourself: your name, your level, and one word you learned this week.'",
+      "id": 113,
+      "prompt": "Act as a Telegram community manager for a channel about [topic] for [audience]. I want to start a discussion group linked to my channel. Write: (1) the group's welcome message (under 120 words) — what the group is for, the 3 main rules, and what to do first, (2) 3 conversation starters for the first week, (3) one rule for how I will handle the group (e.g. I check it once a day at [time]). Keep the tone warm and clear. Do not promise 24/7 moderation I cannot do.",
+      "purpose": "A group without a welcome message and rules becomes noise in a week.",
+      "section": 9,
+      "title": "Set up your discussion group",
+      "sample": true
+    }
+  ]
+}
