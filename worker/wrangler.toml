@@ -26,8 +26,8 @@ BOT_USERNAME = ""                # bot @ (no @), e.g. "promptpack_bot" — used 
 #   wrangler kv namespace create ORDERS_KV --preview
 [[kv_namespaces]]
 binding = "ORDERS_KV"
-id = "<YOUR_KV_NAMESPACE_ID>"
-preview_id = "<YOUR_KV_PREVIEW_NAMESPACE_ID>"
+id = "136d3d601e18407dafbf137e208f89b3"
+preview_id = "34daadf63f214ceb95f1383fa88880e0"
 
 # --- Cron: payment sweep every 2 minutes ------------------------------------
 # Free plan allows 5 cron triggers; this uses 1. Each sweep makes ONE TonAPI
