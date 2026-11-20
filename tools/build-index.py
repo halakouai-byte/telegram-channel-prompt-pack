@@ -5,6 +5,10 @@ Reads prompts.json (source of truth) and embeds 5 full free-sample prompts
 as real indexable text, plus the 9 section list and all 10 sample titles.
 Run from the repo root:  python3 tools/build-index.py
 Price is a single constant here — launch price $2.00 (see PRICE below).
+
+Design: dark, mobile-first store page. No external fonts, images, JS libs
+or trackers — everything is inline, so the page works with zero network
+beyond itself. Edit the template here, never site/index.html directly.
 """
 import json, html, pathlib
 
@@ -12,7 +16,11 @@ PRICE = "2.00"
 PRICE_DISPLAY = "$2"
 PRICE_FUTURE = "$3"  # struck-through next to the launch price: honest anchoring —
 # the price genuinely rises to $3 after the first 3–5 testimonials.
-WORKER_URL = ""            # fill after the Worker is deployed, e.g. https://prompt-pack-bot.<subdomain>.workers.dev
+WORKER_URL = ""            # Direct web checkout is OFF until the account has a
+# workers.dev subdomain: the API returned 10007 "You do not have a workers.dev
+# subdomain" (2026-11-20). Opening the Workers & Pages dashboard once creates
+# it; then set e.g. https://prompt-pack-bot.<subdomain>.workers.dev here.
+# Until then the Buy button falls back to the bot link (see the script below).
 BOT_USERNAME = "ChannelCraftBot"   # proposed bot; create via @BotFather before launch
 CHANNEL_USERNAME = "TelegramChannelPrompts"
 PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # expected Pages URL; confirm after deploy
@@ -31,8 +39,9 @@ def section_rows():
     for s in SECTIONS:
         end = start + s["count"] - 1
         rows.append(
-            f'<li><strong>Section {s["id"]} — {html.escape(s["title"])}</strong>'
-            f'<span>{s["count"]} prompts · #{start}–#{end}</span></li>')
+            f'<li><span class="sec-num" aria-hidden="true">{s["id"]}</span>'
+            f'<div><strong>{html.escape(s["title"])}</strong>'
+            f'<span class="sec-meta">{s["count"]} prompts · #{start}–#{end}</span></div></li>')
         start = end + 1
     return "\n".join(rows)
 
@@ -54,6 +63,11 @@ def sample_titles():
         for p in (PROMPTS[i] for i in SAMPLE_IDS))
     return f"<ul class=\"sample-list\">{items}</ul>"
 
+CHECK = ('<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+         '<circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>'
+         '<path d="M5 8.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.5"'
+         ' stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
 page = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,47 +88,160 @@ page = f"""<!DOCTYPE html>
 "brand":{{"@type":"Brand","name":"ChannelCraft"}},"offers":{{"@type":"Offer","price":"{PRICE}","priceCurrency":"USD","availability":"https://schema.org/InStock"}}}}
 </script>
 <style>
-:root{{--bg:#0f172a;--card:#1e293b;--ink:#f1f5f9;--muted:#cbd5e1;--accent:#38bdf8;--gold:#fbbf24;--line:#334155}}
-*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}}
-a{{color:var(--accent)}}header,main,footer{{max-width:760px;margin:0 auto;padding:0 18px}}
-header{{padding:22px 18px 0;display:flex;justify-content:space-between;align-items:center}}
-.logo{{font-weight:800;font-size:1.15rem}}.logo span{{color:var(--gold)}}
-.hero{{padding:34px 0 10px}}.hero h1{{font-size:1.9rem;line-height:1.25;margin:.2em 0}}
-.hero p.lead{{font-size:1.08rem;color:var(--muted)}}
-.price{{font-size:2rem;font-weight:800}}.price small{{font-size:.9rem;color:var(--muted);font-weight:400}}.price s{{font-size:1.15rem;color:var(--muted);font-weight:400;margin-right:8px}}
-.btn{{display:inline-block;background:var(--gold);color:#111827;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:10px;margin:6px 8px 6px 0}}
-.btn.ghost{{background:transparent;color:var(--ink);border:1px solid var(--line)}}
-section{{padding:26px 0;border-top:1px solid var(--line)}}h2{{font-size:1.35rem;margin:.2em 0 .6em}}
-.card{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:10px 0}}
-ul.sections{{list-style:none;padding:0}}ul.sections li{{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}}ul.sections span{{color:var(--muted);white-space:nowrap}}
-ol.steps{{padding-left:20px}}ol.steps li{{margin:10px 0}}
-.sample{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}}
-.sample h3{{margin-top:0;font-size:1.05rem}}.tag{{background:#14532d;color:#bbf7d0;font-size:.75rem;padding:2px 8px;border-radius:20px;margin-left:8px;white-space:nowrap}}
-.purpose{{color:var(--muted);font-style:italic}}blockquote{{margin:12px 0;padding:12px;border-left:3px solid var(--accent);background:#0b1220;white-space:pre-wrap;font-size:.95rem}}
-.example{{font-size:.92rem;color:var(--muted)}}
-details{{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0}}summary{{cursor:pointer;font-weight:700}}
+:root{{--bg:#0f172a;--bg2:#0b1220;--card:#1e293b;--card2:#182238;--ink:#f1f5f9;--muted:#cbd5e1;--faint:#94a3b8;--accent:#38bdf8;--gold:#fbbf24;--gold-deep:#f59e0b;--gold-ink:#111827;--line:#334155;--line-strong:#475569;--radius:14px}}
+*{{box-sizing:border-box}}
+html{{scroll-behavior:smooth}}
+body{{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:17px}}
+a{{color:var(--accent)}}
+a:focus-visible,summary:focus-visible{{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}}
+.wrap{{max-width:760px;margin:0 auto;padding:0 20px}}
+/* --- sticky header --- */
+.site-header{{position:sticky;top:0;z-index:20;background:rgba(15,23,42,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}}
+.site-header .wrap{{display:flex;justify-content:space-between;align-items:center;padding-top:12px;padding-bottom:12px}}
+.logo{{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;text-decoration:none;color:var(--ink)}}
+.logo span{{color:var(--gold)}}
+.header-buy{{background:var(--gold);color:var(--gold-ink);font-weight:700;font-size:.9rem;text-decoration:none;padding:8px 16px;border-radius:999px;white-space:nowrap}}
+.header-buy:hover{{background:var(--gold-deep)}}
+/* --- hero --- */
+.hero{{padding:48px 0 8px;position:relative}}
+.hero::before{{content:"";position:absolute;left:0;right:0;top:0;height:340px;background:radial-gradient(closest-side at 20% 10%,rgba(56,189,248,.13),transparent 70%),radial-gradient(closest-side at 85% 15%,rgba(251,191,36,.11),transparent 70%);pointer-events:none}}
+.hero>*{{position:relative}}
+.eyebrow{{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 12px}}
+.hero h1{{font-size:clamp(2rem,8.4vw,3.1rem);line-height:1.12;letter-spacing:-.02em;margin:0 0 14px}}
+.hero .lead{{font-size:1.1rem;color:var(--muted);margin:0 0 20px;max-width:34em}}
+.hero-grid{{display:grid;gap:28px}}
+@media(min-width:720px){{.hero-grid{{grid-template-columns:1.12fr .88fr;align-items:center}}}}
+/* price */
+.price-row{{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:18px 0 4px}}
+.price{{font-size:2.3rem;font-weight:800;letter-spacing:-.02em;line-height:1}}
+.price s{{font-size:1.2rem;color:var(--faint);font-weight:500;margin-right:2px}}
+.save{{background:#14532d;color:#bbf7d0;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}}
+.price-note{{font-size:.92rem;color:var(--muted);margin:0 0 6px}}
+.cta-row{{margin:12px 0 4px}}
+/* buttons */
+.btn{{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--gold-ink);font-weight:700;text-decoration:none;padding:14px 24px;border-radius:12px;margin:8px 10px 8px 0;font-size:1rem;line-height:1.3;box-shadow:0 10px 22px -10px rgba(251,191,36,.55);transition:transform .15s ease,box-shadow .15s ease,background .15s ease}}
+.btn:hover{{background:var(--gold-deep);transform:translateY(-1px)}}
+.btn:active{{transform:translateY(0)}}
+.btn.ghost{{background:rgba(30,41,59,.65);color:var(--ink);border:1px solid var(--line);box-shadow:none}}
+.btn.ghost:hover{{border-color:var(--faint);background:#243349}}
+.btn-block{{width:100%;margin:10px 0 0}}
+/* trust row */
+.trust{{display:flex;flex-wrap:wrap;gap:8px 22px;list-style:none;padding:18px 0 0;margin:20px 0 0;border-top:1px solid var(--line)}}
+.trust li{{display:flex;align-items:center;gap:7px;font-size:.9rem;color:var(--muted)}}
+.trust svg{{flex:none;width:16px;height:16px;color:var(--gold)}}
+/* product mockup (CSS only, decorative) */
+.pack{{background:linear-gradient(160deg,#22304d,#0b1220 70%);border:1px solid var(--line-strong);border-radius:18px;padding:22px;box-shadow:0 26px 48px -18px rgba(0,0,0,.65);transform:rotate(-1deg)}}
+.pack-top{{display:flex;align-items:center;gap:10px;margin-bottom:16px}}
+.pack-mark{{width:36px;height:36px;border-radius:10px;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:1.2rem;display:flex;align-items:center;justify-content:center;flex:none}}
+.pack-brand{{font-size:.8rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}}
+.pack-title{{font-size:1.7rem;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0}}
+.pack-sub{{color:var(--muted);margin:2px 0 16px}}
+.pack-files{{list-style:none;padding:0;margin:0 0 16px;border-top:1px solid var(--line)}}
+.pack-files li{{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.92rem}}
+.file-ico{{flex:none;font-size:.68rem;font-weight:800;letter-spacing:.06em;background:var(--bg2);border:1px solid var(--line);color:var(--accent);border-radius:6px;padding:2px 7px}}
+.pack-price{{margin:0;font-size:1.5rem;font-weight:800}}
+.pack-price s{{font-size:1rem;color:var(--faint);font-weight:500;margin-right:6px}}
+.pack-price span{{font-size:.85rem;color:var(--muted);font-weight:400}}
+/* --- sections --- */
+section{{padding:44px 0;border-top:1px solid var(--line);scroll-margin-top:72px}}
+section:first-child{{border-top:0}}
+h2{{font-size:clamp(1.4rem,4.6vw,1.7rem);line-height:1.25;letter-spacing:-.01em;margin:0 0 10px}}
+.section-intro{{color:var(--muted);margin:0 0 18px;max-width:36em}}
+.card{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:10px 0}}
+/* inside list */
+ul.sections{{list-style:none;padding:0;margin:0}}
+ul.sections li{{display:flex;align-items:flex-start;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line)}}
+.sec-num{{flex:none;width:28px;height:28px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);color:var(--gold);font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;margin-top:1px}}
+ul.sections strong{{display:block;font-weight:650;line-height:1.4}}
+.sec-meta{{display:block;font-size:.88rem;color:var(--muted);margin-top:1px}}
+/* steps */
+ol.steps{{list-style:none;padding:0;counter-reset:step}}
+ol.steps li{{counter-increment:step;position:relative;padding-left:46px;margin:16px 0;line-height:1.6}}
+ol.steps li::before{{content:counter(step);position:absolute;left:0;top:1px;width:30px;height:30px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);color:var(--gold);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.9rem}}
+ol.steps li strong{{color:var(--ink)}}
+/* sample cards */
+.sample{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:16px 0}}
+.sample h3{{margin:0 0 6px;font-size:1.08rem;line-height:1.35}}
+.tag{{background:#14532d;color:#bbf7d0;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:8px;white-space:nowrap;vertical-align:2px}}
+.purpose{{color:var(--muted);font-style:italic;margin:0 0 12px}}
+blockquote{{margin:0 0 12px;padding:14px 16px;border-left:3px solid var(--gold);background:var(--bg2);border-radius:0 10px 10px 0;white-space:pre-wrap;font-size:.97rem;line-height:1.6}}
+.example{{font-size:.92rem;color:var(--muted);margin:0;padding-top:12px;border-top:1px solid var(--line)}}
+.sample-list{{padding-left:20px;color:var(--muted)}}
+.sample-list li{{margin:5px 0}}
+/* buy */
+.buy-card{{background:linear-gradient(180deg,#22304d,#182238);border:1px solid var(--line-strong);border-radius:16px;padding:22px;margin:14px 0;box-shadow:0 18px 40px -20px rgba(0,0,0,.7)}}
+.get-grid{{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0}}
+@media(min-width:560px){{.get-grid{{grid-template-columns:repeat(3,1fr)}}}}
+.get{{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 12px;text-align:center}}
+.get strong{{display:block;font-size:.95rem;line-height:1.35}}
+.get span{{font-size:.85rem;color:var(--muted)}}
+.important{{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.35);border-left:3px solid var(--gold);border-radius:12px;padding:16px 18px;margin:18px 0}}
+.important ul{{margin:8px 0 0;padding-left:20px}}
+.important li{{margin:6px 0}}
+/* faq */
+details{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:10px 0}}
+details[open]{{border-color:var(--line-strong)}}
+summary{{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}}
+summary::-webkit-details-marker{{display:none}}
+summary::after{{content:"+";color:var(--gold);font-weight:400;font-size:1.25rem;line-height:1;flex:none;transition:transform .2s ease}}
+details[open] summary::after{{transform:rotate(45deg)}}
+details p{{color:var(--muted);margin:10px 0 2px}}
 .muted{{color:var(--muted);font-size:.92rem}}
-#order-box{{display:none}}#order-box code{{background:#0b1220;padding:2px 6px;border-radius:6px;word-break:break-all}}
-footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}}
-@media(min-width:640px){{.hero h1{{font-size:2.4rem}}}}
+#order-box{{display:none}}#order-box code{{background:var(--bg2);padding:2px 6px;border-radius:6px;word-break:break-all}}
+footer{{padding:28px 20px 44px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}}
+footer .wrap{{padding:0}}
+/* sticky buy bar (mobile only) */
+.sticky-buy{{display:none}}
+@media(max-width:719px){{
+  body{{padding-bottom:78px}}
+  .sticky-buy{{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(11,18,32,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));transition:transform .25s ease}}
+  .sticky-buy.hidden{{transform:translateY(110%)}}
+  .sb-price{{font-weight:800;font-size:1.05rem;line-height:1.2;white-space:nowrap}}
+  .sb-price small{{display:block;font-size:.72rem;color:var(--muted);font-weight:400}}
+  .sticky-buy .btn{{margin:0;padding:11px 20px;flex:none}}
+}}
 </style>
 </head>
 <body>
-<header><div class="logo">Channel<span>Craft</span></div><a href="#buy">Buy — {PRICE_DISPLAY}</a></header>
-<main>
+<header class="site-header"><div class="wrap"><a class="logo" href="#">Channel<span>Craft</span></a><a class="header-buy" href="#buy">Buy — {PRICE_DISPLAY}</a></div></header>
+<main class="wrap">
 <section class="hero">
+<div class="hero-grid">
+<div>
+<p class="eyebrow">ChannelCraft · Telegram channel toolkit</p>
 <h1>120 AI prompts to run a Telegram channel</h1>
 <p class="lead">Stop staring at a blank post box. Copy a prompt, fill in the [brackets] with your own details, paste it into your AI chatbot — and get a post, a poll, a quiz, a hook or a plan back in seconds. Works with ChatGPT, Claude, Gemini, DeepSeek and any AI chatbot.</p>
-<p><span class="price"><s>{PRICE_FUTURE}</s>{PRICE_DISPLAY} <small>USDT on TON · launch price · one-time payment</small></span></p>
-<p class="muted">Launch price — rises to {PRICE_FUTURE} after the first testimonials.</p>
-<p><a class="btn" href="#buy">Buy the pack — {PRICE_DISPLAY}</a>
+<div class="price-row"><span class="price"><s>{PRICE_FUTURE}</s>{PRICE_DISPLAY}</span><span class="save">Save 33% — launch price</span></div>
+<p class="price-note">Launch price — rises to {PRICE_FUTURE} after the first testimonials. USDT on TON · one-time payment.</p>
+<p class="cta-row"><a class="btn" href="#buy">Buy the pack — {PRICE_DISPLAY}</a>
 <a class="btn ghost" href="sample.pdf">Download the free 10-prompt sample (PDF)</a></p>
 <p class="muted">No account needed. No subscription. You get a PDF (47 pages) + all 120 prompts as text + a quick-start guide. Delivered by Telegram bot after payment.</p>
+</div>
+<aside class="pack" aria-hidden="true">
+<div class="pack-top"><span class="pack-mark">C</span><span class="pack-brand">ChannelCraft</span></div>
+<p class="pack-title">120 AI Prompts</p>
+<p class="pack-sub">to run a Telegram channel</p>
+<ul class="pack-files">
+<li><span class="file-ico">PDF</span>Prompt pack · 47 pages</li>
+<li><span class="file-ico">TXT</span>All 120 prompts as text</li>
+<li><span class="file-ico">GUIDE</span>Quick-start guide</li>
+</ul>
+<p class="pack-price"><s>{PRICE_FUTURE}</s>{PRICE_DISPLAY} <span>one-time</span></p>
+</aside>
+</div>
+<ul class="trust">
+<li>{CHECK}Instant delivery after payment is verified</li>
+<li>{CHECK}One-time payment — no subscription</li>
+<li>{CHECK}Free 10-prompt sample — try before you buy</li>
+<li>{CHECK}Secure payment in USDT on TON</li>
+<li>{CHECK}No account needed</li>
+</ul>
 </section>
 
 <section id="inside">
+<p class="eyebrow">Inside the pack</p>
 <h2>What is inside</h2>
-<p>120 prompts in 9 sections — one section for each job a channel owner actually does:</p>
+<p class="section-intro">120 prompts in 9 sections — one section for each job a channel owner actually does:</p>
 <ul class="sections">
 {section_rows()}
 </ul>
@@ -122,6 +249,7 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 </section>
 
 <section id="how">
+<p class="eyebrow">How it works</p>
 <h2>How it works</h2>
 <ol class="steps">
 <li><strong>Pick a prompt</strong> for the job you need right now — a post, a hook, a poll, a growth idea.</li>
@@ -133,8 +261,9 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 </section>
 
 <section id="samples">
+<p class="eyebrow">Try before you buy</p>
 <h2>Try 5 prompts before you buy</h2>
-<p>These 5 prompts are from the free 10-prompt sample — the full sample (10 prompts, PDF) is <a href="sample.pdf">free to download</a>. Read them, try one, then decide.</p>
+<p class="section-intro">These 5 prompts are from the free 10-prompt sample — the full sample (10 prompts, PDF) is <a href="sample.pdf">free to download</a>. Read them, try one, then decide.</p>
 {sample_cards()}
 <h3>All 10 free-sample prompts</h3>
 {sample_titles()}
@@ -142,11 +271,18 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 </section>
 
 <section id="buy">
+<p class="eyebrow">Checkout</p>
 <h2>Buy the pack — {PRICE_DISPLAY}</h2>
-<div class="card">
-<p><strong>What you get:</strong> the full 120-prompt PDF (47 pages), all 120 prompts as a text file, and the quick-start guide — in one ZIP, under 1&nbsp;MB.</p>
+<div class="buy-card">
+<p><strong>What you get:</strong></p>
+<div class="get-grid">
+<div class="get"><strong>PDF · 47 pages</strong><span>The full 120-prompt pack</span></div>
+<div class="get"><strong>Text file</strong><span>All 120 prompts as plain text</span></div>
+<div class="get"><strong>Quick-start guide</strong><span>Workflow, plan &amp; fixes</span></div>
+</div>
+<p class="muted">All three in one ZIP, under 1&nbsp;MB — it opens on any phone.</p>
 <p><strong>Price:</strong> {PRICE_DISPLAY} in USDT on the TON network. One-time payment, personal use.</p>
-<p><a class="btn" href="https://t.me/{BOT_USERNAME}?start=buy" id="buy-btn">Buy now — pay {PRICE_DISPLAY} USDT</a></p>
+<p><a class="btn btn-block" href="https://t.me/{BOT_USERNAME}?start=buy" id="buy-btn">Buy now — pay {PRICE_DISPLAY} USDT</a></p>
 <div id="order-box"></div>
 <p class="muted" id="buy-note"></p>
 </div>
@@ -157,6 +293,7 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 <li>Tap <strong>“I paid”</strong> in the bot. The payment is checked on the TON blockchain and the file is sent to you in the bot, usually within a minute or two.</li>
 <li>Keep your order code. It is how a payment is matched to your order, and how support can help if anything goes wrong.</li>
 </ol>
+<div class="important">
 <p><strong>Important — read before you pay:</strong></p>
 <ul>
 <li>Pay <strong>USDT on the TON network only</strong>. USDT sent on Tron, Ethereum or any other network cannot be seen or matched automatically.</li>
@@ -164,9 +301,11 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 <li>Pay the <strong>exact amount</strong>. If you pay less, the bot will tell you the remaining amount — a top-up with the same order code completes it.</li>
 <li>Crypto payments are irreversible. If something goes wrong, contact support through the bot with your order code and transaction hash.</li>
 </ul>
+</div>
 </section>
 
 <section id="faq">
+<p class="eyebrow">Questions</p>
 <h2>Questions</h2>
 <details><summary>Which AI tools do the prompts work with?</summary><p>Any AI chatbot: ChatGPT, Claude, Gemini, DeepSeek and others. The prompts are plain text — no plugin, no account and no special tool is needed.</p></details>
 <details><summary>How do I pay?</summary><p>In USDT on the TON network, from a wallet such as Keeper (Tonkeeper). You pay from the order the bot creates for you; the payment link is pre-filled with the amount and your order code.</p></details>
@@ -179,16 +318,23 @@ footer{{padding:26px 18px 40px;color:var(--muted);font-size:.9rem;border-top:1px
 <details><summary>Will this grow my channel or make me money?</summary><p>No — and nobody honest can promise that. This pack is a tool: it makes writing faster and more consistent. Growth depends on posting regularly, replying to subscribers, and time. There are no income or subscriber promises in this pack, on this page, or anywhere else.</p></details>
 </section>
 
-<section>
+<section id="about">
+<p class="eyebrow">About</p>
 <h2>Who is behind this</h2>
 <p>Made by <strong>halakouai-byte</strong>, a freelance developer who builds small self-running tools. Questions or problems with an order: contact support through the bot — <a href="https://t.me/{BOT_USERNAME}">@{BOT_USERNAME}</a>. Channel: <a href="https://t.me/{CHANNEL_USERNAME}">@{CHANNEL_USERNAME}</a>.</p>
 <p class="muted">This page is the only official sales page. The product file itself is never posted at a public link — it is delivered by the bot only after a verified payment.</p>
 </section>
 </main>
 <footer>
+<div class="wrap">
 <p>ChannelCraft Prompt Pack v1.0 — 120 AI prompts to run a Telegram channel. Price {PRICE_DISPLAY} USDT on TON (launch price). Personal use only. No income, subscriber or results promises are made anywhere in this product.</p>
 <p><a href="sample.pdf">Free sample (PDF)</a> · <a href="https://t.me/{BOT_USERNAME}">Bot</a> · <a href="https://t.me/{CHANNEL_USERNAME}">Channel</a> · <a href="https://github.com/halakouai-byte/telegram-channel-prompt-pack">GitHub</a></p>
+</div>
 </footer>
+<div class="sticky-buy" id="sticky-buy">
+<span class="sb-price">{PRICE_DISPLAY} <small>one-time · USDT on TON</small></span>
+<a class="btn" href="#buy">Buy the pack</a>
+</div>
 <script>
 // Buy flow. CONFIG: set WORKER_URL after the Worker is deployed; until then
 // the Buy button opens the bot, which creates the order itself (/buy).
@@ -224,6 +370,14 @@ if (!CONFIG.workerUrl) {{
     }}
     buyBtn.textContent = "Buy now — pay {PRICE_DISPLAY} USDT";
   }});
+}}
+// Hide the sticky buy bar while the buy section is on screen.
+const bar = document.getElementById("sticky-buy");
+const buySection = document.getElementById("buy");
+if (bar && buySection && "IntersectionObserver" in window) {{
+  new IntersectionObserver((entries) => {{
+    bar.classList.toggle("hidden", entries[0].isIntersecting);
+  }}, {{rootMargin: "-32px 0px 0px 0px"}}).observe(buySection);
 }}
 </script>
 </body>
