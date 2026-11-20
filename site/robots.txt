@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://telegram-channel-prompt-pack.pages.dev/sitemap.xml
