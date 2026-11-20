@@ -16,11 +16,7 @@ PRICE = "2.00"
 PRICE_DISPLAY = "$2"
 PRICE_FUTURE = "$3"  # struck-through next to the launch price: honest anchoring —
 # the price genuinely rises to $3 after the first 3–5 testimonials.
-WORKER_URL = ""            # Direct web checkout is OFF until the account has a
-# workers.dev subdomain: the API returned 10007 "You do not have a workers.dev
-# subdomain" (2026-11-20). Opening the Workers & Pages dashboard once creates
-# it; then set e.g. https://prompt-pack-bot.<subdomain>.workers.dev here.
-# Until then the Buy button falls back to the bot link (see the script below).
+WORKER_URL = "https://prompt-pack-bot.halakouai-byte.workers.dev"  # live Worker; subdomain halakouai-byte created via API 2026-11-20 (no dashboard visit needed)
 BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot, created by user 2026-11-20
 CHANNEL_USERNAME = "ChannelCraftDelivery"  # real channel, created by user 2026-11-20
 PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # expected Pages URL; confirm after deploy
