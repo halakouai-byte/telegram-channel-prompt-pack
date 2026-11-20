@@ -21,8 +21,8 @@ WORKER_URL = ""            # Direct web checkout is OFF until the account has a
 # subdomain" (2026-11-20). Opening the Workers & Pages dashboard once creates
 # it; then set e.g. https://prompt-pack-bot.<subdomain>.workers.dev here.
 # Until then the Buy button falls back to the bot link (see the script below).
-BOT_USERNAME = "ChannelCraftBot"   # proposed bot; create via @BotFather before launch
-CHANNEL_USERNAME = "TelegramChannelPrompts"
+BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot, created by user 2026-11-20
+CHANNEL_USERNAME = "ChannelCraftDelivery"  # real channel, created by user 2026-11-20
 PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # expected Pages URL; confirm after deploy
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent

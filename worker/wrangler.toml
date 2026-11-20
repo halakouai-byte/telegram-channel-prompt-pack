@@ -18,7 +18,7 @@ PRODUCT_PRICE_USDT = "2.00"      # price in USDT; change here to reprice
 ORDER_TTL_MINUTES = "60"         # order expiry; late payments go to manual review
 TON_PRICE_USD = "1.00"           # fallback TON/USD rate if TonAPI rates is down
 SUPPORT_USERNAME = ""            # seller's public Telegram @ (no @), e.g. "halakouai_byte"
-BOT_USERNAME = ""                # bot @ (no @), e.g. "promptpack_bot" — used for landing-page claim links
+BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot @ (no @) — used for landing-page claim links
 
 # --- KV: order records, tx-hash dedup, rate-limit state ---------------------
 # Create it once, then paste the id below:

@@ -55,11 +55,10 @@ Confirm the live URL and update the `PAGES_URL` in three places — `tools/build
 
 ## Step 3 — Worker (bot + payments)
 
-**Create the bot FIRST (D13):** in Telegram, @BotFather → `/newbot` → name it
-`ChannelCraftBot` (fallback `ChannelCraftPackBot` if taken — if you use the
-fallback, use it EVERYWHERE: Step 4's `BOT_TOKEN` note, Step 5's webhook, Step 7,
-`wrangler.toml` `BOT_USERNAME`, and the landing page's `BOT_USERNAME` in
-`tools/build-index.py`). The token goes straight into `wrangler secret put
+**Bot + channel already created by the user (2026-11-20):** bot
+`@ChannelCraftDeliveryBot` (id 9012830465), channel `Telegram Channel Prompts` /
+`@ChannelCraftDelivery` (id -1004472486910). The token goes straight into
+`wrangler secret put
 BOT_TOKEN` below — never into chat, a file, or the repo.
 
 ```bash
@@ -75,7 +74,7 @@ npx wrangler deploy
 ## Step 4 — Secrets (each prompts for the value; never in a file or chat)
 
 ```bash
-npx wrangler secret put BOT_TOKEN            # from @BotFather (/newbot -> @ChannelCraftBot)
+npx wrangler secret put BOT_TOKEN            # @ChannelCraftDeliveryBot (custom.telegram-prompt)
 npx wrangler secret put SELLER_TON_ADDRESS   # seller's Keeper wallet (UQ… / EQ…)
 npx wrangler secret put PRODUCT_FILE_ID      # see Step 5
 npx wrangler secret put SELLER_TELEGRAM_ID   # seller's numeric id from @userinfobot
@@ -83,7 +82,7 @@ npx wrangler secret put TONAPI_KEY           # optional free key from tonconsole
 npx wrangler secret put WEBHOOK_SECRET       # optional, recommended
 ```
 
-Also set the non-secret vars in `wrangler.toml` `[vars]`: `BOT_USERNAME="ChannelCraftBot"`,
+Also set the non-secret vars in `wrangler.toml` `[vars]`: `BOT_USERNAME="ChannelCraftDeliveryBot"`,
 `SUPPORT_USERNAME` (seller's public @, no @). Price stays `PRODUCT_PRICE_USDT="2.00"`.
 
 ## Step 5 — Product file_id + webhook
@@ -113,6 +112,6 @@ on a successful transfer) are proven ONLY by this test.
 
 ## Step 7 — Announce
 
-Public channel `Telegram Channel Prompts` / `@TelegramChannelPrompts` + bot
-`@ChannelCraftBot` (fallback `@ChannelCraftPackBot` if taken). Post the free sample,
+Public channel `Telegram Channel Prompts` / `@ChannelCraftDelivery` + bot
+`@ChannelCraftDeliveryBot`. Post the free sample,
 link the landing page, and start the daily-post routine (see `../growth/GROWTH.md`).
