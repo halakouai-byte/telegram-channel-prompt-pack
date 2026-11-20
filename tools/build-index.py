@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """Build site/index.html for the ChannelCraft Prompt Pack landing page.
 
-Reads prompts.json (source of truth) and embeds 5 full free-sample prompts
+Reads prompts data (source of truth) and embeds 5 full free-sample prompts
 as real indexable text, plus the 9 section list and all 10 sample titles.
 Run from the repo root:  python3 tools/build-index.py
 Price is a single constant here — launch price $2.00 (see PRICE below).
+
+Data source: the full 120-prompt prompts.json lives ONLY on the seller's
+machine (it is the paid product — never committed). This repo ships
+content/prompts.sample.json instead: the 10 free-sample prompts that are
+already public in site/sample.pdf. The builder prefers the full file when
+it is present and falls back to the sample, which rebuilds the identical
+public landing page — so anyone cloning this repo can rebuild the page.
 
 Design: dark, mobile-first store page. No external fonts, images, JS libs
 or trackers — everything is inline, so the page works with zero network
@@ -19,12 +26,18 @@ PRICE_FUTURE = "$3"  # struck-through next to the launch price: honest anchoring
 WORKER_URL = "https://prompt-pack-bot.halakouai-byte.workers.dev"  # live Worker; subdomain halakouai-byte created via API 2026-11-20 (no dashboard visit needed)
 BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot, created by user 2026-11-20
 CHANNEL_USERNAME = "ChannelCraftDelivery"  # real channel, created by user 2026-11-20
-PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # expected Pages URL; confirm after deploy
+PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # live Pages URL (verified 2026-11-20)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DATA = json.load(open(ROOT.parent / "prompt-pack" / "content" / "prompts.json")) \
-    if (ROOT.parent / "prompt-pack" / "content" / "prompts.json").exists() \
-    else json.load(open(pathlib.Path.home() / "workspace/prompt-pack/content/prompts.json"))
+# Full product file (seller's machine only, never committed) wins when present;
+# otherwise use the in-repo redacted sample (10 free-sample prompts, already public).
+_SAMPLE = ROOT / "content" / "prompts.sample.json"
+_FULL_CANDIDATES = [
+    ROOT.parent / "prompt-pack" / "content" / "prompts.json",
+    pathlib.Path.home() / "workspace/prompt-pack/content/prompts.json",
+]
+_FULL = next((p for p in _FULL_CANDIDATES if p.exists()), None)
+DATA = json.load(open(_FULL if _FULL is not None else _SAMPLE))
 PROMPTS = {p["id"]: p for p in DATA["prompts"]}
 SECTIONS = DATA["sections"]
 SAMPLE_IDS = [p["id"] for p in DATA["prompts"] if p.get("sample")]
