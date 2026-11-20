@@ -1,11 +1,11 @@
-# telegram-channel-prompt-pack
+# ChannelCraft Prompt Pack
 
 **ChannelCraft Prompt Pack — 120 AI prompts to run a Telegram channel.**
 Price: **$2.00 USDT on TON** (launch price; rises to $3 after the first 3–5 testimonials — one `PRODUCT_PRICE_USDT` change in `worker/wrangler.toml`).
 
 Seller: halakouai-byte. Stack: free Cloudflare Pages (landing page) + free Cloudflare Worker + KV (Telegram bot, TON/USDT payment verification, auto-delivery) + Telegram. No server, no AI at runtime, no secret in this repo — ever.
 
-> **Status: deploy-ready, NOT yet deployed.** The repo does not exist on GitHub yet (creation via the Muse GitHub App failed / needs approval — see `DEPLOYMENT.md`), and Pages/Worker deploys need a Cloudflare login this environment does not have. Everything in this repo is ready to push and deploy; `DEPLOYMENT.md` lists the exact commands in order.
+> **Status: LIVE.** Landing page: https://telegram-channel-prompt-pack.pages.dev/ · Worker: https://prompt-pack-bot.halakouai-byte.workers.dev/ · Bot: @ChannelCraftDeliveryBot · Channel: @ChannelCraftDelivery. The 2-minute cron sweep is active. What is still unproven: the live payment test with a tiny real payment from a second wallet (see "Unproven until the live test" below) — do not present the store as payment-proven until it passes.
 
 ## What is in this repo
 
@@ -24,8 +24,8 @@ worker/                Cloudflare Worker: Telegram bot + payment verification + 
                        (native-TON fallback), sendDocument delivery, cron sweep
   src/ton.js           Pure payment logic (money math, pay links, parsers, matcher)
   wrangler.toml        Deploy config — NO secrets. PRODUCT_PRICE_USDT = "2.00",
-                       KV binding ORDERS_KV (ids are placeholders — fill after
-                       `wrangler kv namespace create`), cron every 2 minutes
+                       KV binding ORDERS_KV (namespace ids are set — created
+                       2026-11-20), cron every 2 minutes
   README.md            Deploy steps, exact `wrangler secret put` commands,
                        live-test procedure (do this BEFORE announcing the store)
   FLOW.md              Exact payment flow, every edge case, Telegram Stars risk,
@@ -63,6 +63,10 @@ Per `worker/README.md` §7, two things only a tiny real payment from a second wa
 ## Telegram Stars risk
 
 Telegram's Bot Terms (§6.2) say digital goods in bots must be sold in Stars; selling for TON inside a bot risks the bot being hidden from mobile users. Mitigation (per the research report §3.4): payment executes in the external wallet (Keeper) — the bot shows the price and a Keeper pay link in-chat but never issues a Telegram invoice and never takes payment inside Telegram; a Stars-priced version is the fallback if the bot is ever restricted. This is a partial mitigation, not a total one. See `worker/FLOW.md` §6.
+
+## Licence
+
+All rights reserved. This repo is the public storefront (landing page, Worker code, docs) for a paid product. The product file itself (`channelcraft-prompt-pack.zip`) is never in this repo. Do not copy, resell, share, or redistribute any part of this repo or the product.
 
 ## Deploy
 
