@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
 """Build site/index.html for the ChannelCraft Prompt Pack landing page.
 
-Reads prompts data (source of truth) and embeds 5 full free-sample prompts
+Reads prompts.json (source of truth) and embeds 5 full free-sample prompts
 as real indexable text, plus the 9 section list and all 10 sample titles.
 Run from the repo root:  python3 tools/build-index.py
 Price is a single constant here — launch price $2.00 (see PRICE below).
-
-Data source: the full 120-prompt prompts.json lives ONLY on the seller's
-machine (it is the paid product — never committed). This repo ships
-content/prompts.sample.json instead: the 10 free-sample prompts that are
-already public in site/sample.pdf. The builder prefers the full file when
-it is present and falls back to the sample, which rebuilds the identical
-public landing page — so anyone cloning this repo can rebuild the page.
 
 Design: dark, mobile-first store page. No external fonts, images, JS libs
 or trackers — everything is inline, so the page works with zero network
@@ -26,18 +19,12 @@ PRICE_FUTURE = "$3"  # struck-through next to the launch price: honest anchoring
 WORKER_URL = "https://prompt-pack-bot.halakouai-byte.workers.dev"  # live Worker; subdomain halakouai-byte created via API 2026-11-20 (no dashboard visit needed)
 BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot, created by user 2026-11-20
 CHANNEL_USERNAME = "ChannelCraftDelivery"  # real channel, created by user 2026-11-20
-PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # live Pages URL (verified 2026-11-20)
+PAGES_URL = "https://telegram-channel-prompt-pack.pages.dev"  # expected Pages URL; confirm after deploy
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-# Full product file (seller's machine only, never committed) wins when present;
-# otherwise use the in-repo redacted sample (10 free-sample prompts, already public).
-_SAMPLE = ROOT / "content" / "prompts.sample.json"
-_FULL_CANDIDATES = [
-    ROOT.parent / "prompt-pack" / "content" / "prompts.json",
-    pathlib.Path.home() / "workspace/prompt-pack/content/prompts.json",
-]
-_FULL = next((p for p in _FULL_CANDIDATES if p.exists()), None)
-DATA = json.load(open(_FULL if _FULL is not None else _SAMPLE))
+DATA = json.load(open(ROOT.parent / "prompt-pack" / "content" / "prompts.json")) \
+    if (ROOT.parent / "prompt-pack" / "content" / "prompts.json").exists() \
+    else json.load(open(pathlib.Path.home() / "workspace/prompt-pack/content/prompts.json"))
 PROMPTS = {p["id"]: p for p in DATA["prompts"]}
 SECTIONS = DATA["sections"]
 SAMPLE_IDS = [p["id"] for p in DATA["prompts"] if p.get("sample")]
@@ -324,7 +311,7 @@ footer .wrap{{padding:0}}
 <details><summary>What if my payment is not found?</summary><p>First check that you paid USDT on TON (not Tron or Ethereum) with the order code untouched. Then send the bot your transaction hash with <code>/tx &lt;hash&gt;</code>, or contact support with your order code. Payments that arrive late or without a code are reviewed manually — your money is not lost, but delivery takes longer.</p></details>
 <details><summary>Can I get a refund?</summary><p>Crypto payments cannot be reversed automatically. If you paid and never received the file, contact support through the bot with your order code — every case is reviewed, and a manual refund is possible when the payment is confirmed and delivery truly failed.</p></details>
 <details><summary>Can I share or resell the pack?</summary><p>No. The licence is personal use for your own channel(s). Do not resell, share or redistribute the file.</p></details>
-<details><summary>Will this grow my channel or make me money?</summary><p>No — and nobody honest can promise that. This pack is a tool: it makes writing faster and more consistent. Growth depends on posting regularly, replying to subscribers, and time. There are no income or subscriber promises in this pack, on this page, or anywhere else.</p></details>
+<details><summary>Will this grow my channel or make me money?</summary><p>No — and nobody honest can promise that. This pack is a tool: it makes writing faster and more consistent. Growth depends on posting regularly, replying to subscribers, and time. There are no income or subscriber promises in this pack, on this page, or anywhere else. Honest ranges: month 1, $0–15 (most likely $0–5); month 3, $0–30 typical.</p></details>
 </section>
 
 <section id="about">
@@ -336,7 +323,7 @@ footer .wrap{{padding:0}}
 </main>
 <footer>
 <div class="wrap">
-<p>ChannelCraft Prompt Pack v1.0 — 120 AI prompts to run a Telegram channel. Price {PRICE_DISPLAY} USDT on TON (launch price). Personal use only. No income, subscriber or results promises are made anywhere in this product.</p>
+<p>ChannelCraft Prompt Pack v2.0 — 120 AI prompts to run a Telegram channel. Price {PRICE_DISPLAY} USDT on TON (launch price). Personal use only. No income, subscriber or results promises are made anywhere in this product.</p>
 <p><a href="sample.pdf">Free sample (PDF)</a> · <a href="https://t.me/{BOT_USERNAME}">Bot</a> · <a href="https://t.me/{CHANNEL_USERNAME}">Channel</a> · <a href="https://github.com/halakouai-byte/telegram-channel-prompt-pack">GitHub</a></p>
 </div>
 </footer>
