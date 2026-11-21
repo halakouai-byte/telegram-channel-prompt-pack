@@ -4,7 +4,7 @@ Read this file first. It is the single source of truth for any AI agent working 
 
 ## 1. What the project is
 
-ChannelCraft Prompt Pack: a digital product, "120 AI Prompts to Run a Telegram Channel" — 120 ready-made AI prompts in 9 sections for running a Telegram channel (posts, hooks, polls, quizzes, growth, selling). Sold for **$2.00 USDT on TON** (launch price; struck-through $3, genuinely rises to $3 after the first 3–5 testimonials). Payment is crypto-only (USDT on TON mainnet) via a Telegram bot + a free landing page; the product file is delivered automatically by the bot after the Worker verifies the payment on-chain. No AI runs at runtime — the product is a static file. Seller is in Iran: no KYC, no PayPal/Stripe, no central-exchange payouts.
+ChannelCraft Prompt Pack: a digital product, "120 AI Prompts to Run a Telegram Channel" — 120 ready-made AI prompts in 9 sections for running a Telegram channel (posts, hooks, polls, quizzes, growth, selling). Sold for **$2.00 USDT on TON** (launch price; struck-through $3, genuinely rises to $3 after the first 3–5 testimonials). Version 2.0 (21 November 2026): 11 prompts rewritten after a 100% live audit (3 WEAK rewritten + 6 polish fixes + differentiation); all 11 re-tested PASS. Payment is crypto-only (USDT on TON mainnet) via a Telegram bot + a free landing page; the product file is delivered automatically by the bot after the Worker verifies the payment on-chain. No AI runs at runtime — the product is a static file. Seller is in Iran: no KYC, no PayPal/Stripe, no central-exchange payouts.
 
 ## 2. Tech stack + repo layout
 
@@ -35,9 +35,11 @@ worker/
   test/
     verify.test.mjs, e2e-dryrun.test.mjs  <- unit + end-to-end dry-run tests
     live-probe.mjs, live-probe-output.json <- fixtures modelled on real TonAPI/TON Center responses
+content/
+  prompts.sample.json <- the 10 free-sample prompts (public by design; the full 120-prompt prompts.json is the paid product and lives outside the repo)
 ```
 
-NOT in this repo (by design): `content/` — `prompts.json` (source of truth for the 120 prompts), the product PDF and ZIP. They live in the workspace at `~/workspace/prompt-pack/content/`. **Never commit the product PDF/ZIP to this repo** — the product file must never be at a public URL; it is delivered only by the bot via a Telegram `file_id`.
+NOT in this repo (by design): `content/prompts.json` — the source of truth for the 120 prompts — and the product PDF and ZIP. They live in the workspace at `~/workspace/prompt-pack/content/`. **Never commit the product PDF/ZIP to this repo** — the product file must never be at a public URL; it is delivered only by the bot via a Telegram `file_id`.
 
 ## 3. Build / test commands
 
@@ -98,12 +100,14 @@ cd worker && npx wrangler deploy
 - 2026-11-21 — Leak protection: `secret-scan.yml` added (gitleaks v8.28.0, SHA256-verified binary, full-history checkout, fails on any finding; runs on push to `main`, PRs, and weekly Sun 03:00 UTC). No token of any kind is used by the workflow. One-time full-history audit 2026-11-21 found 0 findings in all repos. GitHub native Secret scanning + Push protection + CodeQL are enabled separately by the manager.
 - 2026-11-21 — Security headers: `site/_headers` added (CSP, HSTS, X-Frame-Options, nosniff, referrer-policy, Permissions-Policy, COOP/CORP), patterned on liveforge's `_headers`. CSP `connect-src` is the Worker URL only; `script-src`/`style-src` keep `'unsafe-inline'` because the page's `<style>` and buy-flow `<script>` are inline — dropping it needs the JS/CSS moved to external files first.
 - 2026-11-21 — Standing GitHub rule: reads only via the GitHub connector; writes only via the browser by the manager (never the connector, never a write approval card to the user). This team prepares writes and hands them to the manager.
-- 2026-11-20/21 — Quality-audit directive in progress: 100% of the 120 prompts to be actually run through a real model with real inputs and rewritten where weak; shop expansion to more prompt products. (See §8.)
+- 2026-11-21 — Prompt pack v2.0 merged: the 11 prompts rewritten in the quality audit (11, 20, 41, 49, 60, 80, 82, 93, 95, 99, 120) promoted to prompts.json (version 2.0, 21 November 2026); product PDF + prompts.md + ZIP rebuilt (47 pp, 157,681 bytes); sample.pdf text unchanged (only the PDF creation date moved); site/index.html rebuilt from v2 — byte-identical, because the page embeds only the 5 full sample prompts and none of them changed; Worker tests 28/28 pass. AGENTS.md updated in the same commit.
+- 2026-11-21 — Harsh-critic first review (248/270, grade B): fixed the stale deploy-pages.yml references in README + DEPLOYMENT.md (file was deleted in d452ab1), added content/prompts.sample.json to the §2 layout, added honest income ranges to the page FAQ, footer v1.0 → v2.0. Mobile 390px render verified PASS 2026-11-21 ~21:46 Tehran (headless Chrome, real 390×844 emulation: scrollWidth 390 = innerWidth, 0 offenders, 4 buy buttons inside viewport, 9 FAQ, 0 console errors — live page AND the rebuilt page; screenshots in qa/mobile-390-live.png + qa/mobile-390-fixed.png). Open: deploy-worker.yml decision (narrow Cloudflare repo token vs disable/remove — the workflow needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID repo secrets that were never set; the critic reports 8/8 runs failing).
+- 2026-11-20/21 — Quality audit DONE: 100% of the 120 prompts run through a real model with real inputs (117 PASS / 3 WEAK), 11 rewritten, 11/11 re-tested PASS, merged as v2.0. Shop expansion to more prompt products next. (See §8.)
 - Standing: no token of any kind goes on GitHub; use only GitHub's native capabilities + Cloudflare. The GitHub profile stays minimal/pro ("Freelance Developer"). Every live project is separate — separate site, automation, bot, topic.
 
 ## 8. Roadmap
 
-1. Prompt quality audit (in progress): test all 120 prompts with real inputs, rewrite the weak ones, re-test until they pass. Evidence lands in `qa/`.
+1. Prompt quality audit DONE 2026-11-21: all 120 prompts tested with real inputs (117 PASS / 3 WEAK), 11 rewritten, 11/11 re-tested PASS, merged as v2.0. Evidence in `qa/` (audit-batch-A–D, REWRITE_CHANGELOG.md, rewrite-retest.md).
 2. Shop expansion: more prompt products (different topics, same $2–3 USDT on TON model, same Worker delivery). Each new product gets the same 100% test audit before it goes live. Product list is proposed to the owner first; build only after approval.
 3. Prove ONE real sale from a stranger (payment verified on-chain, file auto-delivered, no manual help). Then freeze this project as the template.
 4. Only after #1 has a real sale: replicate the template to project #2 (new topic, separate site/automation/bot). Do NOT start project #2 before that.

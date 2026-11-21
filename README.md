@@ -32,13 +32,13 @@ worker/                Cloudflare Worker: Telegram bot + payment verification + 
                        Catallaxy parallel listing, upgrade paths
   test/                28 tests (21 unit + 7 e2e dry runs) — 28/28 pass, Node v24
 .github/workflows/
-  deploy-pages.yml     Deploys site/ to Cloudflare Pages on push to main
   deploy-worker.yml    Deploys worker/ with wrangler on push to main
+  secret-scan.yml      Secret scan (gitleaks v8.28.0, SHA256-verified, full history, fails on any finding) — push to main / PR / weekly Sun 03:00 UTC
 ```
 
 ## What is NOT in this repo (on purpose)
 
-The paid product file (`channelcraft-prompt-pack.zip`: full PDF + `prompts.md` + `guide.md`, 168 KB) is **never** committed here — a public repo link would give it away free. It lives outside the repo; the seller uploads it once to the bot, which replies with the Telegram `file_id`, stored as the `PRODUCT_FILE_ID` Worker secret. See `worker/README.md` §5.
+The paid product file (`channelcraft-prompt-pack.zip`: full PDF + `prompts.md` + `guide.md`, 171 KB) is **never** committed here — a public repo link would give it away free. It lives outside the repo; the seller uploads it once to the bot, which replies with the Telegram `file_id`, stored as the `PRODUCT_FILE_ID` Worker secret. See `worker/README.md` §5.
 
 ## Price — one source of truth
 

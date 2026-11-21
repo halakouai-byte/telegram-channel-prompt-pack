@@ -23,7 +23,7 @@ Repo created (public) and pushed; `main` is the live branch. Every push to `main
 
 - No build command, deploy root `site/`, preview builds OFF (`preview_deployment_setting: "none"`).
 - No GitHub secret is needed for Pages. Do NOT add `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets for Pages, and do NOT deploy Pages with `wrangler pages deploy` — the native link is the only deploy path.
-- The old GitHub Actions workflow `.github/workflows/deploy-pages.yml` (which deployed via `cloudflare/pages-action` with API-token secrets) is **superseded** by the native link. It still exists in the repo and must be removed so it cannot fire on `site/**` pushes and conflict with the native deploy. (Follow-up: delete that file.)
+- The old GitHub Actions workflow `.github/workflows/deploy-pages.yml` (which deployed via `cloudflare/pages-action` with API-token secrets) was **removed 2026-11-21** (commit `d452ab1`) — the native link is the only deploy path.
 - Confirm a deploy worked: push to `main`, then check the Pages project (or `curl -s https://telegram-channel-prompt-pack.pages.dev/` — expect HTTP 200 and the current page). The native link creates a GitHub build/check on each push; a successful build means the site is live.
 - `site/index.html` is generated from `tools/build-index.py` (which reads `~/workspace/prompt-pack/content/prompts.json`); never hand-edit it. After editing `tools/build-index.py`, rebuild (`python3 tools/build-index.py`) and push to `main` — the native link deploys the rebuild automatically.
 
