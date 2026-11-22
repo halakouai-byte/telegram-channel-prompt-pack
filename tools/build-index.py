@@ -15,7 +15,7 @@ import json, html, pathlib
 PRICE = "2.00"
 PRICE_DISPLAY = "$2"
 PRICE_FUTURE = "$3"  # struck-through next to the launch price: honest anchoring —
-# the price genuinely rises to $3 after the first 3–5 testimonials.
+# launch price $2 (struck-through $3); the price rises to $3 after launch.
 WORKER_URL = "https://prompt-pack-bot.halakouai-byte.workers.dev"  # live Worker; subdomain halakouai-byte created via API 2026-11-20 (no dashboard visit needed)
 BOT_USERNAME = "ChannelCraftDeliveryBot"   # real bot, created by user 2026-11-20
 CHANNEL_USERNAME = "ChannelCraftDelivery"  # real channel, created by user 2026-11-20
@@ -208,7 +208,7 @@ footer .wrap{{padding:0}}
 <h1>120 AI prompts to run a Telegram channel</h1>
 <p class="lead">Stop staring at a blank post box. Copy a prompt, fill in the [brackets] with your own details, paste it into your AI chatbot — and get a post, a poll, a quiz, a hook or a plan back in seconds. Works with ChatGPT, Claude, Gemini, DeepSeek and any AI chatbot.</p>
 <div class="price-row"><span class="price"><s>{PRICE_FUTURE}</s>{PRICE_DISPLAY}</span><span class="save">Save 33% — launch price</span></div>
-<p class="price-note">Launch price — rises to {PRICE_FUTURE} after the first testimonials. USDT on TON · one-time payment.</p>
+<p class="price-note">Launch price — rises to {PRICE_FUTURE} after launch. USDT on TON · one-time payment.</p>
 <p class="cta-row"><a class="btn" href="#buy">Buy the pack — {PRICE_DISPLAY}</a>
 <a class="btn ghost" href="sample.pdf">Download the free 10-prompt sample (PDF)</a></p>
 <p class="muted">No account needed. No subscription. You get a PDF (47 pages) + all 120 prompts as text + a quick-start guide. Delivered by Telegram bot after payment.</p>
