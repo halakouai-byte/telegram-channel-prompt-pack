@@ -1,7 +1,7 @@
 # ChannelCraft Prompt Pack
 
 **ChannelCraft Prompt Pack — 120 AI prompts to run a Telegram channel.**
-Price: **$2.00 USDT on TON** (launch price; rises to $3 after the first 3–5 testimonials — one `PRODUCT_PRICE_USDT` change in `worker/wrangler.toml`).
+Price: **$2.00 USDT on TON** (launch price; rises to $3 after launch — one `PRODUCT_PRICE_USDT` change in `worker/wrangler.toml`).
 
 Seller: halakouai-byte. Stack: free Cloudflare Pages (landing page) + free Cloudflare Worker + KV (Telegram bot, TON/USDT payment verification, auto-delivery) + Telegram. No server, no AI at runtime, no secret in this repo — ever.
 
@@ -32,8 +32,8 @@ worker/                Cloudflare Worker: Telegram bot + payment verification + 
                        Catallaxy parallel listing, upgrade paths
   test/                28 tests (21 unit + 7 e2e dry runs) — 28/28 pass, Node v24
 .github/workflows/
-  deploy-worker.yml    Deploys worker/ with wrangler on push to main
   secret-scan.yml      Secret scan (gitleaks v8.28.0, SHA256-verified, full history, fails on any finding) — push to main / PR / weekly Sun 03:00 UTC
+  (no Worker deploy workflow: the Worker deploys via wrangler + the promptpack-auto-deploy watcher; deploy-worker.yml was removed in 55969c3)
 ```
 
 ## What is NOT in this repo (on purpose)
