@@ -7,8 +7,11 @@ Run from the repo root:  python3 tools/build-index.py
 Price is a single constant here — launch price $2.00 (see PRICE below).
 
 Design: dark, mobile-first store page. No external fonts, images, JS libs
-or trackers — everything is inline, so the page works with zero network
-beyond itself. Edit the template here, never site/index.html directly.
+or trackers. Styles live in site/styles.css and the buy-flow JS in
+site/app.js (both static files, edited directly — the buy-flow constants
+WORKER_URL / BOT_USERNAME / PRICE live in app.js; keep them in sync with
+the constants below). This script only generates site/index.html.
+Edit the template here, never site/index.html directly.
 """
 import json, html, pathlib
 
@@ -83,120 +86,7 @@ page = f"""<!DOCTYPE html>
 "description":"120 AI prompts to run a Telegram channel, in 9 sections, plus a quick-start guide. Works with ChatGPT, Claude, Gemini, DeepSeek and any AI chatbot.",
 "brand":{{"@type":"Brand","name":"ChannelCraft"}},"offers":{{"@type":"Offer","price":"{PRICE}","priceCurrency":"USD","availability":"https://schema.org/InStock"}}}}
 </script>
-<style>
-:root{{--bg:#0f172a;--bg2:#0b1220;--card:#1e293b;--card2:#182238;--ink:#f1f5f9;--muted:#cbd5e1;--faint:#94a3b8;--accent:#38bdf8;--gold:#fbbf24;--gold-deep:#f59e0b;--gold-ink:#111827;--line:#334155;--line-strong:#475569;--radius:14px}}
-*{{box-sizing:border-box}}
-html{{scroll-behavior:smooth}}
-body{{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:17px}}
-a{{color:var(--accent)}}
-a:focus-visible,summary:focus-visible{{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}}
-.wrap{{max-width:760px;margin:0 auto;padding:0 20px}}
-/* --- sticky header --- */
-.site-header{{position:sticky;top:0;z-index:20;background:rgba(15,23,42,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}}
-.site-header .wrap{{display:flex;justify-content:space-between;align-items:center;padding-top:12px;padding-bottom:12px}}
-.logo{{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;text-decoration:none;color:var(--ink)}}
-.logo span{{color:var(--gold)}}
-.header-buy{{background:var(--gold);color:var(--gold-ink);font-weight:700;font-size:.9rem;text-decoration:none;padding:8px 16px;border-radius:999px;white-space:nowrap}}
-.header-buy:hover{{background:var(--gold-deep)}}
-/* --- hero --- */
-.hero{{padding:48px 0 8px;position:relative}}
-.hero::before{{content:"";position:absolute;left:0;right:0;top:0;height:340px;background:radial-gradient(closest-side at 20% 10%,rgba(56,189,248,.13),transparent 70%),radial-gradient(closest-side at 85% 15%,rgba(251,191,36,.11),transparent 70%);pointer-events:none}}
-.hero>*{{position:relative}}
-.eyebrow{{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 12px}}
-.hero h1{{font-size:clamp(2rem,8.4vw,3.1rem);line-height:1.12;letter-spacing:-.02em;margin:0 0 14px}}
-.hero .lead{{font-size:1.1rem;color:var(--muted);margin:0 0 20px;max-width:34em}}
-.hero-grid{{display:grid;gap:28px}}
-@media(min-width:720px){{.hero-grid{{grid-template-columns:1.12fr .88fr;align-items:center}}}}
-/* price */
-.price-row{{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:18px 0 4px}}
-.price{{font-size:2.3rem;font-weight:800;letter-spacing:-.02em;line-height:1}}
-.price s{{font-size:1.2rem;color:var(--faint);font-weight:500;margin-right:2px}}
-.save{{background:#14532d;color:#bbf7d0;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}}
-.price-note{{font-size:.92rem;color:var(--muted);margin:0 0 6px}}
-.cta-row{{margin:12px 0 4px}}
-/* buttons */
-.btn{{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--gold-ink);font-weight:700;text-decoration:none;padding:14px 24px;border-radius:12px;margin:8px 10px 8px 0;font-size:1rem;line-height:1.3;box-shadow:0 10px 22px -10px rgba(251,191,36,.55);transition:transform .15s ease,box-shadow .15s ease,background .15s ease}}
-.btn:hover{{background:var(--gold-deep);transform:translateY(-1px)}}
-.btn:active{{transform:translateY(0)}}
-.btn.ghost{{background:rgba(30,41,59,.65);color:var(--ink);border:1px solid var(--line);box-shadow:none}}
-.btn.ghost:hover{{border-color:var(--faint);background:#243349}}
-.btn-block{{width:100%;margin:10px 0 0}}
-/* trust row */
-.trust{{display:flex;flex-wrap:wrap;gap:8px 22px;list-style:none;padding:18px 0 0;margin:20px 0 0;border-top:1px solid var(--line)}}
-.trust li{{display:flex;align-items:center;gap:7px;font-size:.9rem;color:var(--muted)}}
-.trust svg{{flex:none;width:16px;height:16px;color:var(--gold)}}
-/* product mockup (CSS only, decorative) */
-.pack{{background:linear-gradient(160deg,#22304d,#0b1220 70%);border:1px solid var(--line-strong);border-radius:18px;padding:22px;box-shadow:0 26px 48px -18px rgba(0,0,0,.65);transform:rotate(-1deg)}}
-.pack-top{{display:flex;align-items:center;gap:10px;margin-bottom:16px}}
-.pack-mark{{width:36px;height:36px;border-radius:10px;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:1.2rem;display:flex;align-items:center;justify-content:center;flex:none}}
-.pack-brand{{font-size:.8rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}}
-.pack-title{{font-size:1.7rem;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0}}
-.pack-sub{{color:var(--muted);margin:2px 0 16px}}
-.pack-files{{list-style:none;padding:0;margin:0 0 16px;border-top:1px solid var(--line)}}
-.pack-files li{{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.92rem}}
-.file-ico{{flex:none;font-size:.68rem;font-weight:800;letter-spacing:.06em;background:var(--bg2);border:1px solid var(--line);color:var(--accent);border-radius:6px;padding:2px 7px}}
-.pack-price{{margin:0;font-size:1.5rem;font-weight:800}}
-.pack-price s{{font-size:1rem;color:var(--faint);font-weight:500;margin-right:6px}}
-.pack-price span{{font-size:.85rem;color:var(--muted);font-weight:400}}
-/* --- sections --- */
-section{{padding:44px 0;border-top:1px solid var(--line);scroll-margin-top:72px}}
-section:first-child{{border-top:0}}
-h2{{font-size:clamp(1.4rem,4.6vw,1.7rem);line-height:1.25;letter-spacing:-.01em;margin:0 0 10px}}
-.section-intro{{color:var(--muted);margin:0 0 18px;max-width:36em}}
-.card{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:10px 0}}
-/* inside list */
-ul.sections{{list-style:none;padding:0;margin:0}}
-ul.sections li{{display:flex;align-items:flex-start;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line)}}
-.sec-num{{flex:none;width:28px;height:28px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);color:var(--gold);font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;margin-top:1px}}
-ul.sections strong{{display:block;font-weight:650;line-height:1.4}}
-.sec-meta{{display:block;font-size:.88rem;color:var(--muted);margin-top:1px}}
-/* steps */
-ol.steps{{list-style:none;padding:0;counter-reset:step}}
-ol.steps li{{counter-increment:step;position:relative;padding-left:46px;margin:16px 0;line-height:1.6}}
-ol.steps li::before{{content:counter(step);position:absolute;left:0;top:1px;width:30px;height:30px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);color:var(--gold);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.9rem}}
-ol.steps li strong{{color:var(--ink)}}
-/* sample cards */
-.sample{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:16px 0}}
-.sample h3{{margin:0 0 6px;font-size:1.08rem;line-height:1.35}}
-.tag{{background:#14532d;color:#bbf7d0;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:8px;white-space:nowrap;vertical-align:2px}}
-.purpose{{color:var(--muted);font-style:italic;margin:0 0 12px}}
-blockquote{{margin:0 0 12px;padding:14px 16px;border-left:3px solid var(--gold);background:var(--bg2);border-radius:0 10px 10px 0;white-space:pre-wrap;font-size:.97rem;line-height:1.6}}
-.example{{font-size:.92rem;color:var(--muted);margin:0;padding-top:12px;border-top:1px solid var(--line)}}
-.sample-list{{padding-left:20px;color:var(--muted)}}
-.sample-list li{{margin:5px 0}}
-/* buy */
-.buy-card{{background:linear-gradient(180deg,#22304d,#182238);border:1px solid var(--line-strong);border-radius:16px;padding:22px;margin:14px 0;box-shadow:0 18px 40px -20px rgba(0,0,0,.7)}}
-.get-grid{{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0}}
-@media(min-width:560px){{.get-grid{{grid-template-columns:repeat(3,1fr)}}}}
-.get{{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 12px;text-align:center}}
-.get strong{{display:block;font-size:.95rem;line-height:1.35}}
-.get span{{font-size:.85rem;color:var(--muted)}}
-.important{{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.35);border-left:3px solid var(--gold);border-radius:12px;padding:16px 18px;margin:18px 0}}
-.important ul{{margin:8px 0 0;padding-left:20px}}
-.important li{{margin:6px 0}}
-/* faq */
-details{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:10px 0}}
-details[open]{{border-color:var(--line-strong)}}
-summary{{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}}
-summary::-webkit-details-marker{{display:none}}
-summary::after{{content:"+";color:var(--gold);font-weight:400;font-size:1.25rem;line-height:1;flex:none;transition:transform .2s ease}}
-details[open] summary::after{{transform:rotate(45deg)}}
-details p{{color:var(--muted);margin:10px 0 2px}}
-.muted{{color:var(--muted);font-size:.92rem}}
-#order-box{{display:none}}#order-box code{{background:var(--bg2);padding:2px 6px;border-radius:6px;word-break:break-all}}
-footer{{padding:28px 20px 44px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}}
-footer .wrap{{padding:0}}
-/* sticky buy bar (mobile only) */
-.sticky-buy{{display:none}}
-@media(max-width:719px){{
-  body{{padding-bottom:78px}}
-  .sticky-buy{{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(11,18,32,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));transition:transform .25s ease}}
-  .sticky-buy.hidden{{transform:translateY(110%)}}
-  .sb-price{{font-weight:800;font-size:1.05rem;line-height:1.2;white-space:nowrap}}
-  .sb-price small{{display:block;font-size:.72rem;color:var(--muted);font-weight:400}}
-  .sticky-buy .btn{{margin:0;padding:11px 20px;flex:none}}
-}}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="site-header"><div class="wrap"><a class="logo" href="#">Channel<span>Craft</span></a><a class="header-buy" href="#buy">Buy — {PRICE_DISPLAY}</a></div></header>
@@ -331,51 +221,7 @@ footer .wrap{{padding:0}}
 <span class="sb-price">{PRICE_DISPLAY} <small>one-time · USDT on TON</small></span>
 <a class="btn" href="#buy">Buy the pack</a>
 </div>
-<script>
-// Buy flow. CONFIG: set WORKER_URL after the Worker is deployed; until then
-// the Buy button opens the bot, which creates the order itself (/buy).
-const CONFIG = {{
-  workerUrl: "{WORKER_URL}",
-  botUsername: "{BOT_USERNAME}"
-}};
-const buyBtn = document.getElementById("buy-btn");
-const box = document.getElementById("order-box");
-const note = document.getElementById("buy-note");
-if (!CONFIG.workerUrl) {{
-  buyBtn.href = "https://t.me/" + CONFIG.botUsername + "?start=buy";
-  note.textContent = "Checkout runs in Telegram: the bot creates your order and payment link. (Direct web checkout opens here once the payment server is connected.)";
-}} else {{
-  buyBtn.addEventListener("click", async (e) => {{
-    e.preventDefault();
-    buyBtn.textContent = "Creating your order…";
-    try {{
-      const r = await fetch(CONFIG.workerUrl + "/api/order", {{method: "POST"}});
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
-      box.style.display = "block";
-      const claim = d.bot_url ? "<p>Then open the bot and tap “I paid”: <a href=\\"" + d.bot_url + "\\">" + d.bot_url + "</a></p>" : "<p>Then open the bot @" + CONFIG.botUsername + " and send /claim " + d.order_id + ".</p>";
-      box.innerHTML = "<p><strong>Your order code: <code>" + d.memo + "</code></strong> — do not edit it in the payment.</p>"
-        + "<p>Amount: <strong>$" + d.price_usdt + " USDT on TON</strong></p>"
-        + "<p><a class=\\"btn\\" href=\\"" + d.pay_usdt_keeper + "\\">Pay $" + d.price_usdt + " USDT (Keeper)</a> "
-        + "<a class=\\"btn ghost\\" href=\\"" + d.pay_ton_keeper + "\\">Pay in TON instead</a></p>"
-        + claim;
-      note.textContent = "Order expires in 60 minutes. USDT on TON only; keep the order code in the payment memo.";
-    }} catch (err) {{
-      box.style.display = "block";
-      box.innerHTML = "<p>Could not create an order right now (" + err.message + "). Please try the bot instead: <a href=\\"https://t.me/" + CONFIG.botUsername + "?start=buy\\">@" + CONFIG.botUsername + "</a></p>";
-    }}
-    buyBtn.textContent = "Buy now — pay {PRICE_DISPLAY} USDT";
-  }});
-}}
-// Hide the sticky buy bar while the buy section is on screen.
-const bar = document.getElementById("sticky-buy");
-const buySection = document.getElementById("buy");
-if (bar && buySection && "IntersectionObserver" in window) {{
-  new IntersectionObserver((entries) => {{
-    bar.classList.toggle("hidden", entries[0].isIntersecting);
-  }}, {{rootMargin: "-32px 0px 0px 0px"}}).observe(buySection);
-}}
-</script>
+<script src="app.js"></script>
 </body>
 </html>
 """
