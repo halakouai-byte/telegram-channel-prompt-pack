@@ -1,8 +1,9 @@
 # ChannelCraft Prompt Pack — Cloudflare Pages headers (site/ is the deploy root).
-# Pattern: liveforge's _headers, adapted. This page is a single self-contained
-# HTML file (inline <style> + inline buy-flow <script>), so script-src and
-# style-src need 'unsafe-inline' until the JS/CSS move to external files —
-# without it the page renders unstyled and the Buy button's fetch breaks.
+# Pattern: liveforge's _headers, adapted. Styles live in site/styles.css and
+# the buy-flow JS in site/app.js (both same-origin), so script-src and
+# style-src need NO 'unsafe-inline' (removed 2026-11-23; the inline JS/CSS
+# were extracted to external files). The <script type="application/ld+json">
+# block stays inline — it is inert data, not executed code, so CSP allows it.
 # connect-src is the Worker only: the buy flow POSTs to /api/order there.
 # HSTS is set here (liveforge sets it in the dashboard only — this repo
 # sets it in the file).
@@ -14,5 +15,5 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src https://prompt-pack-bot.halakouai-byte.workers.dev; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://prompt-pack-bot.halakouai-byte.workers.dev; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
   Cache-Control: public, max-age=3600, must-revalidate
