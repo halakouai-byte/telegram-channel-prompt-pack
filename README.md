@@ -13,9 +13,12 @@ Seller: halakouai-byte. Stack: free Cloudflare Pages (landing page) + free Cloud
 site/                  Landing page (Cloudflare Pages). Mobile-first, English.
   index.html           Hero, what's inside (9 sections), 5 full sample prompts
                        as real indexable text, how buying works, FAQ, $2 price.
-                       Buy button calls the Worker POST /api/order when
-                       CONFIG.workerUrl is set; otherwise opens the bot.
+                       Buy button calls the Worker POST /api/order (buy flow
+                       lives in app.js); the bot link is the fallback.
                        Rebuild with: python3 tools/build-index.py
+  styles.css           Page styles (static)
+  app.js               Buy-flow JS (static; holds the WORKER_URL / BOT_USERNAME
+                       / PRICE constants)
   sample.pdf           Free 10-prompt sample (the only product file that is public)
   robots.txt, sitemap.xml
 tools/build-index.py   Regenerates site/index.html from prompts.json (source of truth)
